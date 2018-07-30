@@ -116,7 +116,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
       emsg.distR = 3;
       ROS_INFO("TEST\n");
       pub->publish(emsg);
-    //
+    //aaa
     //cv::imshow( "test", dst );
     cv::waitKey(1);
     //ROS_INFO("test\n");
