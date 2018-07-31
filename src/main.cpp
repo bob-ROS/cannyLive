@@ -10,7 +10,7 @@
 //using namespace cv;
 
 #define startPix 500
-#define endPix 0 // startPix should be greater than endPix
+#define endPix 150 // startPix should be greater than endPix
 
 cv::Mat src_gray;
 cv::Mat dst, detected_edges;
@@ -51,7 +51,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
   cv::Canny( canny_output, canny_output, cannythres, cannythres*ratio, kernel_size );
 
     //cv::imshow("cannyraw", canny_output);
-  dst = cv::Scalar::all(0); //sets all values to 0?
+  dst = cv::Scalar::all(0); // all colors = black?
 
     //imshow("detected_edges", detected_edges );
  
@@ -107,15 +107,19 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 	      }
 	            middle = round(right + (left - right)*0.5);
                 meanError += middle - middlex;
-  				dst.at<uchar>(j,middle) = 255;         
+  				dst.at<uchar>(j,middle) = 255;   // plot with color of 255 (full white)      
            
         }
-        else
+        else // if obvious roadblock, does no always work due to bad picture!!
         {
         	break;
         }
       
     }
+    int meanErrorToMiddle = round(middlex + meanError/(startPix-endPix)); // for plotting purpose only!
+    //line(Mat& img, Point pt1, Point pt2, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
+    cv::line(dst, cv::Point(meanErrorToMiddle,endPix),cv::Point(meanErrorToMiddle,startPix), cv::Scalar(255, 255, 255), 1);
+
 
 
 
@@ -143,8 +147,8 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 
       pub->publish(emsg);
     //aaa
-    //cv::imshow( "test", dst );
-    cv::waitKey(1);
+    cv::imshow( "test", dst );
+    cv::waitKey(1); // only needed when used together with imshow!
     //ROS_INFO("sent message!\n");
 }
 
