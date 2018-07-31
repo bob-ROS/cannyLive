@@ -109,12 +109,24 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 
 
     }
-    //ROS_INFO("TEST\n");
+   
       cannylive::errorDistances emsg;
-      emsg.distL = 1;
-      emsg.distM = 2;
-      emsg.distR = 3;
-      ROS_INFO("TEST\n");
+       
+      int k;
+      /*
+      for(k=0; k<10; k++)
+      {
+        emsg.errorDist[k] = k;
+      }
+
+      */
+      emsg.errorDist.push_back(0);
+      emsg.errorDist.push_back(1);
+      emsg.errorDist.push_back(2);
+      emsg.errorDist.push_back(3);
+
+      //ROS_INFO("test\n");
+
       pub->publish(emsg);
     //aaa
     //cv::imshow( "test", dst );
@@ -202,10 +214,9 @@ int main(int argc, char* argv[])
 	ros::NodeHandle nh;
 	image_transport::ImageTransport it(nh);
 	image_transport::Subscriber image_sub;
-	image_transport::Publisher image_pub;
 
 	//image_transport::Publisher publisher = it.advertise("camera/canny", 1);
-  ros::Publisher publisher = nh.advertise<cannylive::errorDistances>("errorDistances", 1); //
+    ros::Publisher publisher = nh.advertise<cannylive::errorDistances>("errorDistances", 1); //
 	pub = &publisher; // point global ptr to the publisher declared above.
 	//image_sub = it.subscribe("/camera/color/image_raw", 1, CBfunc);
 	image_sub = it.subscribe("/videofile/image_raw", 1, CBfunc);

@@ -223,3 +223,6 @@ include_directories(
 # catkin_add_nosetests(test)
 add_executable(cannylive src/main.cpp)
 target_link_libraries(cannylive ${LINK_LIBRARIES})
+
+add_executable(listenerTest src/listener.cpp)
+target_link_libraries(listenerTest ${LINK_LIBRARIES})
