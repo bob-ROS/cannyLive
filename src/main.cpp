@@ -63,7 +63,28 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
     right = 0;
     middle = middlex;
 
-       
+       // to do make: make a 2*x vector that saves the positions.
+    std::vector< std::vector<int> > roadDots;
+    std::vector<int> tempRow(1,5);
+    roadDots[0].push_back(tempRow);
+  
+    
+    ROS_INFO("TEST1");
+    ROS_INFO("roadDots: %d", roadDots[0][0]);
+    ROS_INFO("roadDots: %d", roadDots[0][1]);
+    /*
+    for (int i = 0; i < roadDots.size(); i++)
+    {
+        for (int j = 0; j < roadDots[i].size(); j++)
+        {
+            ROS_INFO("roadDots: %d", roadDots[i][j]);
+        }
+    }
+    */
+    ROS_INFO("TEST2");
+    
+    // to add vector<int> myRow(1,5);
+    // roadDots.push_back(myRow);
     for(int j = 479; j > 0; j--)   // hiddencropped is 1280 x 470
     { 
     	if(dst.at<uchar>(j,middle) == 0)
@@ -71,7 +92,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 
 		  for (int i=middle;i<dst.cols;i++)
 		  {  
-		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1) // !!crashes here!!
+		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1) // 
 		    {   
 		         //dst.at<uchar>(j,i) = 255; //white
 		        
@@ -106,24 +127,29 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
         	break;
         }
       
-
-
     }
+
+
+
+
+
+
+
+
+
+    // Starts publishing out of the system.
    
       cannylive::errorDistances emsg;
-       
+       /*
       int k;
-      /*
+      
       for(k=0; k<10; k++)
       {
         emsg.errorDist[k] = k;
       }
 
       */
-      emsg.errorDist.push_back(0);
-      emsg.errorDist.push_back(1);
-      emsg.errorDist.push_back(2);
-      emsg.errorDist.push_back(3);
+      emsg.errorDist = 0.34;
 
       //ROS_INFO("test\n");
 
@@ -131,7 +157,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
     //aaa
     //cv::imshow( "test", dst );
     cv::waitKey(1);
-    //ROS_INFO("test\n");
+    //ROS_INFO("sent message!\n");
 }
 
 

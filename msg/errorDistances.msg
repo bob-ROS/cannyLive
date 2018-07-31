@@ -1,1 +1,1 @@
-float32[] errorDist
+float32 errorDist

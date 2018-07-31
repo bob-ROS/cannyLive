@@ -36,10 +36,9 @@
 // %Tag(CALLBACK)%
 void chatterCallback(const cannylive::errorDistances::ConstPtr &msg)
 {
-  ROS_INFO("Size of message: [%d]", msg->errorDist.size());
-  ROS_INFO("I heard: [%f]", msg->errorDist[0]);
-  ROS_INFO("I heard: [%f]", msg->errorDist[1]);
-  ROS_INFO("I heard: [%f]", msg->errorDist[2]);
+  //ROS_INFO("Size of message: [%d]", msg->errorDist.size());
+  ROS_INFO("I heard: [%f]", msg->errorDist);
+
 }
 // %EndTag(CALLBACK)%
 
