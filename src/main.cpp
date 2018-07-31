@@ -16,7 +16,7 @@ cv::Mat src_gray;
 cv::Mat dst, detected_edges;
 cv::Mat canny_output;
 
-int lowThreshold = 45;
+const int cannythres = 35;
 const int max_lowThreshold = 100;
 const int ratio = 3;
 const int kernel_size = 3;
