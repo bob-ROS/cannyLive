@@ -9,6 +9,8 @@
 #include "cannylive/errorDistances.h"
 //using namespace cv;
 
+#define startPix 500
+#define endPix 0 // startPix should be greater than endPix
 
 cv::Mat src_gray;
 cv::Mat dst, detected_edges;
@@ -62,35 +64,20 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
     left = 0;
     right = 0;
     middle = middlex;
+    float meanError = 0;
+
 
        // to do make: make a 2*x vector that saves the positions.
-    std::vector< std::vector<int> > roadDots;
-    std::vector<int> tempRow(1,5);
-    roadDots[0].push_back(tempRow);
-  
-    
-    ROS_INFO("TEST1");
-    ROS_INFO("roadDots: %d", roadDots[0][0]);
-    ROS_INFO("roadDots: %d", roadDots[0][1]);
-    /*
-    for (int i = 0; i < roadDots.size(); i++)
-    {
-        for (int j = 0; j < roadDots[i].size(); j++)
-        {
-            ROS_INFO("roadDots: %d", roadDots[i][j]);
-        }
-    }
-    */
-    ROS_INFO("TEST2");
+
     
     // to add vector<int> myRow(1,5);
     // roadDots.push_back(myRow);
-    for(int j = 479; j > 0; j--)   // hiddencropped is 1280 x 470
+    for(int j = startPix; j > endPix; j--)   // hiddencropped is 1280 x 470
     { 
-    	if(dst.at<uchar>(j,middle) == 0)
+    	if(dst.at<uchar>(j,middle) == 0) // decide if to break or not if road ends. 0 is empty pixel.
     	{
 
-		  for (int i=middle;i<dst.cols;i++)
+		  for (int i=middle;i<dst.cols;i++) // find first edge to the right
 		  {  
 		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1) // 
 		    {   
@@ -106,7 +93,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 		       
 		  }
 
-		  for (int i=middle-1;i>0;i--)
+		  for (int i=middle-1;i>0;i--) // find first edge to the left
 		  {
 		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1)
 		    {
@@ -119,6 +106,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 		    }  
 	      }
 	            middle = round(right + (left - right)*0.5);
+                meanError += middle - middlex;
   				dst.at<uchar>(j,middle) = 255;         
            
         }
@@ -149,7 +137,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
       }
 
       */
-      emsg.errorDist = 0.34;
+      emsg.errorDist = meanError/(startPix-endPix);
 
       //ROS_INFO("test\n");
 
