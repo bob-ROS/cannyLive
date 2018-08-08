@@ -1,4 +1,3 @@
-
 #include "ros/ros.h"
 #include <opencv2/opencv.hpp>
 #include <image_transport/image_transport.h>
@@ -9,8 +8,9 @@
 #include "cannylive/errorDistances.h"
 //using namespace cv;
 
-#define startPix 470
-#define endPix 0 // startPix should be greater than endPix
+#define startPix 450
+#define endPix 325 // startPix should be greater than endPix
+#define debug 0 //if debug 1 debugging is true!
 
 cv::Mat src_gray;
 cv::Mat dst, detected_edges;
@@ -29,6 +29,7 @@ int left;
 int right;
 int middle;
 
+
 void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 {
 	cv_bridge::CvImagePtr cv_ptr;
@@ -45,20 +46,18 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 	//
 	cvtColor( cv_ptr->image, src_gray, cv::COLOR_BGR2GRAY);
 	dst.create( cv_ptr->image.size(), cv_ptr->image.type()); // creates dst, same size and type as cv_ptr->src
-  cv::blur( src_gray, canny_output, cv::Size(3,3));
+    cv::blur( src_gray, canny_output, cv::Size(3,3));
     //cv::GaussianBlur( src_gray, canny_output, cv::Size(3,3), 0); // alternative blurring method
-  int cannythres = 35;
-  cv::Canny( canny_output, canny_output, cannythres, cannythres*ratio, kernel_size );
+    int cannythres = 35;
+    cv::Canny( canny_output, canny_output, cannythres, cannythres*ratio, kernel_size );
 
     //cv::imshow("cannyraw", canny_output);
-  dst = cv::Scalar::all(0); // all colors = black?
+    dst = cv::Scalar::all(0); // all colors = black?
 
     //imshow("detected_edges", detected_edges );
- 
     //src.copyTo( dst, detected_edges);
     src_gray.copyTo( dst, canny_output);
 
-  
     middlex = round(dst.size().width*0.5);
     middley = round(dst.size().height*0.5);
     left = 0;
@@ -69,87 +68,68 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 
        // to do make: make a 2*x vector that saves the positions.
 
-    
     // to add vector<int> myRow(1,5);
     // roadDots.push_back(myRow);
     for(int j = startPix; j > endPix; j--)   // hiddencropped is 1280 x 470
-    { 
+    {
     	if(dst.at<uchar>(j,middle) == 0) // decide if to break or not if road ends. 0 is empty pixel.
     	{
 
 		  for (int i=middle;i<dst.cols;i++) // find first edge to the right
-		  {  
-		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1) // 
-		    {   
+		  {
+		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1) // find first edge to the right
+		    {
 		         //dst.at<uchar>(j,i) = 255; //white
-		        
 		    }
-		    else
+		    else // if edge is found
 		    {
 
 		      right = i;
 		      break;
-		    }           
-		       
+		    }
 		  }
 
 		  for (int i=middle-1;i>0;i--) // find first edge to the left
 		  {
-		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1)
+		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1) // if no edge
 		    {
 		   //   dst.at<uchar>(j,i) = 255; //white
 		    }
-		    else
+		    else // if edge is found
 		    {
 		      left = i;
 		      break;
-		    }  
-	      }
+		    }
+       } // will go here if no edge infront is found.
                 middle = round(right + (left - right)*0.5);
                 meanError += middle - middlex;
-		dst.at<uchar>(j,middle) = 255;   // plot middle line with color of 255 (full white)      
-           
+		if(debug)
+		{
+        	dst.at<uchar>(j,middle) = 255;   // plot middle line with color of 255 (full white)
+		dst.at<uchar>(j,middlex) = 150;
+		}
+
         }
         else // if obvious roadblock, does no always work due to bad picture!!
         {
         	break;
         }
-      
     }
-    int meanErrorToMiddle = round(middlex + meanError/(startPix-endPix)); // for plotting purpose only!
-   // cv::line(dst, cv::Point(meanErrorToMiddle,endPix),cv::Point(meanErrorToMiddle,startPix), cv::Scalar(255, 255, 255), 1);
-    cv::imshow( "test", dst );
-
-
-
-
-
-
-
-
-
+	if(debug)
+	{  
+	  int meanErrorToMiddle = round(middlex + meanError/(startPix-endPix)); // for plotting purpose only!
+	   cv::line(dst, cv::Point(meanErrorToMiddle,endPix),cv::Point(meanErrorToMiddle,startPix), cv::Scalar(255, 255, 255), 1);
+	   cv::imshow( "test", dst );
+	   cv::waitKey(1);
+	}
 
     // Starts publishing out of the system.
-   
       cannylive::errorDistances emsg;
-       /*
-      int k;
-      
-      for(k=0; k<10; k++)
-      {
-        emsg.errorDist[k] = k;
-      }
-
-      */
+   
       emsg.errorDist = meanError/(startPix-endPix);
 
-      //ROS_INFO("test\n");
-
       pub->publish(emsg);
-    //aaa
-   
-    cv::waitKey(1); // only needed when used together with imshow!
-    //ROS_INFO("sent message!\n");
+ 
 }
 
 
@@ -232,6 +212,9 @@ int main(int argc, char* argv[])
 	ros::NodeHandle nh;
 	image_transport::ImageTransport it(nh);
 	image_transport::Subscriber image_sub;
+
+	//WAIT FOR CAMERA!
+	//cv::waitKey(10000);
 
 	//image_transport::Publisher publisher = it.advertise("camera/canny", 1);
     ros::Publisher publisher = nh.advertise<cannylive::errorDistances>("errorDistances", 1); //

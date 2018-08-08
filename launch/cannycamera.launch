@@ -1,0 +1,8 @@
+<launch>
+	<include file="$(find usb_cam)/launch/usb_cam-test.launch"/>
+	<node pkg="cannylive" type="cannySender" name="cannySender" output="screen"/>
+
+	<!--
+	<include file="$(find nameofproject)/launch/nameoflaunchfile.launch"/>
+	-->
+</launch>
