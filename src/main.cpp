@@ -9,8 +9,8 @@
 #include "cannylive/errorDistances.h"
 //using namespace cv;
 
-#define startPix 500
-#define endPix 150 // startPix should be greater than endPix
+#define startPix 470
+#define endPix 0 // startPix should be greater than endPix
 
 cv::Mat src_gray;
 cv::Mat dst, detected_edges;
@@ -97,7 +97,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 		  {
 		    if( dst.at<uchar>(j,i) == 0 && i != dst.cols-1)
 		    {
-		      //dst.at<uchar>(j,i) = 255; //white
+		   //   dst.at<uchar>(j,i) = 255; //white
 		    }
 		    else
 		    {
@@ -105,9 +105,9 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 		      break;
 		    }  
 	      }
-	            middle = round(right + (left - right)*0.5);
+                middle = round(right + (left - right)*0.5);
                 meanError += middle - middlex;
-  				dst.at<uchar>(j,middle) = 255;   // plot with color of 255 (full white)      
+		dst.at<uchar>(j,middle) = 255;   // plot middle line with color of 255 (full white)      
            
         }
         else // if obvious roadblock, does no always work due to bad picture!!
@@ -117,8 +117,8 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
       
     }
     int meanErrorToMiddle = round(middlex + meanError/(startPix-endPix)); // for plotting purpose only!
-    //line(Mat& img, Point pt1, Point pt2, const Scalar& color, int thickness=1, int lineType=8, int shift=0)
-    cv::line(dst, cv::Point(meanErrorToMiddle,endPix),cv::Point(meanErrorToMiddle,startPix), cv::Scalar(255, 255, 255), 1);
+   // cv::line(dst, cv::Point(meanErrorToMiddle,endPix),cv::Point(meanErrorToMiddle,startPix), cv::Scalar(255, 255, 255), 1);
+    cv::imshow( "test", dst );
 
 
 
@@ -147,7 +147,7 @@ void CBfunc(const sensor_msgs::ImageConstPtr& msg)
 
       pub->publish(emsg);
     //aaa
-    cv::imshow( "test", dst );
+   
     cv::waitKey(1); // only needed when used together with imshow!
     //ROS_INFO("sent message!\n");
 }
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
     ros::Publisher publisher = nh.advertise<cannylive::errorDistances>("errorDistances", 1); //
 	pub = &publisher; // point global ptr to the publisher declared above.
 	//image_sub = it.subscribe("/camera/color/image_raw", 1, CBfunc);
-	image_sub = it.subscribe("/videofile/image_raw", 1, CBfunc);
+	image_sub = it.subscribe("/usb_cam/image_raw", 1, CBfunc);
 
 	ros::spin();
 
